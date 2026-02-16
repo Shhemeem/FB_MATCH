@@ -232,11 +232,10 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- DASHBOARD VIEW                             -->
+    <!-- HOME VIEW (DASHBOARD)                      -->
     <!-- ========================================== -->
     <div id="home-view" class="hidden min-h-screen p-4 md:p-8 transition-opacity duration-300">
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Header -->
             <div class="lg:col-span-12 mb-4">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-200"><i data-lucide="trophy" class="text-white w-6 h-6"></i></div>
@@ -279,8 +278,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="layout-dashboard" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">New Match</h2></div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-slate-800">
+                    <div class="flex items-center gap-2 mb-6"><i data-lucide="layout-dashboard" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">New Match</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 relative">
                         <div class="space-y-2"><label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Home Team</label><select id="home-select" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition font-semibold appearance-none"><option value="">Select Home</option></select></div>
                         <div class="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none mt-6"><div class="bg-white rounded-full p-2 text-slate-300 font-black text-xs z-10 border border-slate-100 shadow-sm">VS</div></div>
@@ -417,10 +416,8 @@
 
             // --- UI HELPERS ---
             showConfirm(title, message, callback) {
-                document.getElementById('confirm-title').textContent = title;
-                document.getElementById('confirm-message').textContent = message;
-                this.confirmCallback = callback;
-                document.getElementById('confirm-modal').classList.remove('hidden');
+                document.getElementById('confirm-title').textContent = title; document.getElementById('confirm-message').textContent = message;
+                this.confirmCallback = callback; document.getElementById('confirm-modal').classList.remove('hidden');
                 document.getElementById('confirm-action-btn').onclick = () => { if(this.confirmCallback) this.confirmCallback(); this.closeConfirmModal(); };
                 lucide.createIcons();
             },
@@ -463,17 +460,11 @@
                 const def = { name: '...', short: '...', color: '#64748b', icon: 'shield' };
                 const h = this.teams.find(t => t.id === this.currentMatch.homeId) || def, a = this.teams.find(t => t.id === this.currentMatch.awayId) || def;
                 const isP = this.currentMatch.status === 'paused', isL = this.currentMatch.status === 'live', isFT = this.currentMatch.status === 'finished';
-
                 const b = document.getElementById('live-match-banner');
                 if (b) {
                     b.classList.toggle('hidden', !(isL || isP));
-                    if (isL || isP) {
-                        this.renderClubBadge(document.getElementById('banner-home-badge'), h, true); this.renderClubBadge(document.getElementById('banner-away-badge'), a, true);
-                        document.getElementById('banner-home-name').textContent = h.name; document.getElementById('banner-away-name').textContent = a.name;
-                        document.getElementById('banner-home-score').textContent = this.currentMatch.homeScore; document.getElementById('banner-away-score').textContent = this.currentMatch.awayScore;
-                    }
+                    if (isL || isP) { this.renderClubBadge(document.getElementById('banner-home-badge'), h, true); this.renderClubBadge(document.getElementById('banner-away-badge'), a, true); document.getElementById('banner-home-name').textContent = h.name; document.getElementById('banner-away-name').textContent = a.name; document.getElementById('banner-home-score').textContent = this.currentMatch.homeScore; document.getElementById('banner-away-score').textContent = this.currentMatch.awayScore; }
                 }
-
                 if (!document.getElementById('match-view').classList.contains('hidden')) {
                     document.getElementById('home-name').textContent = h.name; document.getElementById('away-name').textContent = a.name;
                     this.renderClubBadge(document.getElementById('home-badge'), h); this.renderClubBadge(document.getElementById('away-badge'), a);
@@ -487,7 +478,7 @@
                 this.renderTimer(); lucide.createIcons();
             },
 
-            renderTimer() { const m = Math.floor(this.currentMatch.elapsed / 60).toString().padStart(2, '0'), s = (this.currentMatch.elapsed % 60).toString().padStart(2, '0'), str = `${m}:${s}`; if(document.getElementById('timer-display')) document.getElementById('timer-display').textContent = str; if(document.getElementById('banner-timer')) document.getElementById('banner-timer').textContent = str; },
+            renderTimer() { const m = Math.floor(this.currentMatch.elapsed / 60).toString().padStart(2, '0'), s = (this.currentMatch.elapsed % 60).toString().padStart(2, '0'); const str = `${m}:${s}`; if(document.getElementById('timer-display')) document.getElementById('timer-display').textContent = str; if(document.getElementById('banner-timer')) document.getElementById('banner-timer').textContent = str; },
 
             handleMemberSelection(side, type) {
                 if (this.currentMatch.status !== 'live') return;
@@ -514,9 +505,7 @@
             async deleteEvent(index) {
                 if (!this.user) return;
                 this.showConfirm("Correction?", "Remove this event and adjust the score?", async () => {
-                    const ev = this.currentMatch.events[index];
-                    const newEvents = [...this.currentMatch.events];
-                    newEvents.splice(index, 1);
+                    const ev = this.currentMatch.events[index]; const newEvents = [...this.currentMatch.events]; newEvents.splice(index, 1);
                     const up = { events: newEvents };
                     if (ev.type === 'goal') {
                         if (ev.side === 'home') up.homeScore = Math.max(0, this.currentMatch.homeScore - 1);
@@ -549,57 +538,12 @@
                 const m = this.history.find(h => h.id === id); if(!m) return;
                 const hT = this.teams.find(t => t.id === m.homeId) || { name: 'Home' }, aT = this.teams.find(t => t.id === m.awayId) || { name: 'Away' };
                 const evs = m.events || [];
-                
                 document.getElementById('report-title-label').textContent = editMode ? "Edit Match Record" : "Match Report";
                 const content = document.getElementById('report-content');
-                
                 if (!editMode) {
-                    content.innerHTML = `
-                        <div class="text-center py-6 bg-slate-900 rounded-3xl text-white shadow-xl mb-6">
-                            <p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">${new Date(m.date).toLocaleDateString()}</p>
-                            <div class="flex items-center justify-around px-4">
-                                <div class="flex-1 text-right pr-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${hT.name}</p><p class="text-4xl font-black">${m.homeScore}</p></div>
-                                <div class="text-xl font-light text-white/20">VS</div>
-                                <div class="flex-1 text-left pl-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${aT.name}</p><p class="text-4xl font-black">${m.awayScore}</p></div>
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-end mb-2">
-                                <p class="text-[10px] font-black uppercase text-slate-400">Match Timeline</p>
-                                <button onclick="window.app.openReport('${id}', true)" class="text-[10px] font-black uppercase text-emerald-600 hover:underline">Edit Match Data</button>
-                            </div>
-                            ${evs.map(ev => { const align = ev.side==='home'?'text-left':'text-right flex-row-reverse'; return `<div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 ${align}"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">${ev.type==='goal'?'<i data-lucide="goal" class="w-4 h-4"></i>':`<div class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></div>`}</div><div class="flex-1"><p class="text-xs font-black text-slate-800">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</p></div></div>`; }).join('')}
-                        </div>`;
+                    content.innerHTML = `<div class="text-center py-6 bg-slate-900 rounded-3xl text-white shadow-xl mb-6"><p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">${new Date(m.date).toLocaleDateString()}</p><div class="flex items-center justify-around px-4"><div class="flex-1 text-right pr-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${hT.name}</p><p class="text-4xl font-black">${m.homeScore}</p></div><div class="text-xl font-light text-white/20">VS</div><div class="flex-1 text-left pl-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${aT.name}</p><p class="text-4xl font-black">${m.awayScore}</p></div></div></div><div class="space-y-4"><div class="flex justify-between items-end mb-2"><p class="text-[10px] font-black uppercase text-slate-400">Match Timeline</p><button onclick="window.app.openReport('${id}', true)" class="text-[10px] font-black uppercase text-emerald-600 hover:underline">Edit Match Data</button></div>${evs.map(ev => { const align = ev.side==='home'?'text-left':'text-right flex-row-reverse'; return `<div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 ${align}"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">${ev.type==='goal'?'<i data-lucide="goal" class="w-4 h-4"></i>':`<div class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></div>`}</div><div class="flex-1"><p class="text-xs font-black text-slate-800">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</p></div></div>`; }).join('')}</div>`;
                 } else {
-                    content.innerHTML = `
-                        <div class="space-y-6">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-400 ml-1">${hT.short} Score</label>
-                                    <input type="number" id="hist-home-score" value="${m.homeScore}" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-3xl font-black focus:outline-none focus:border-emerald-500">
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-400 ml-1">${aT.short} Score</label>
-                                    <input type="number" id="hist-away-score" value="${m.awayScore}" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-3xl font-black focus:outline-none focus:border-emerald-500">
-                                </div>
-                            </div>
-                            <div class="space-y-4">
-                                <p class="text-[10px] font-black uppercase text-slate-400">Edit Specific Events</p>
-                                ${evs.map((ev, idx) => `
-                                    <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center">${ev.type==='goal'?'⚽':ev.type==='yellow'?'🟨':'🟥'}</div>
-                                            <span class="text-sm font-bold text-slate-700">${(ev.playerName || 'UNASSIGNED')} (${ev.side.charAt(0).toUpperCase()})</span>
-                                        </div>
-                                        <button onclick="window.app.deleteHistoricalEvent(${idx})" class="text-red-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                    </div>`).join('')}
-                            </div>
-                            <div class="flex gap-3 pt-4">
-                                <button onclick="window.app.openReport('${id}', false)" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl">Cancel</button>
-                                <button onclick="window.app.handleSaveHistoricalEdit()" class="flex-1 py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">Save Changes</button>
-                            </div>
-                            <button onclick="window.app.deleteHistoryRecord('${id}')" class="w-full py-2 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:underline mt-4">Delete Match Permanently</button>
-                        </div>`;
+                    content.innerHTML = `<div class="space-y-6"><div class="grid grid-cols-2 gap-4"><div class="space-y-2"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">${hT.short || 'HOME'} SCORE</label><input type="number" id="hist-home-score" value="${m.homeScore}" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-3xl font-black focus:outline-none focus:border-emerald-500"></div><div class="space-y-2"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">${aT.short || 'AWAY'} SCORE</label><input type="number" id="hist-away-score" value="${m.awayScore}" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-3xl font-black focus:outline-none focus:border-emerald-500"></div></div><div class="space-y-4"><p class="text-[10px] font-black uppercase text-slate-400">Match Timeline Corrections</p>${evs.map((ev, idx) => `<div class="flex flex-col gap-2 p-3 bg-white border border-slate-100 rounded-xl"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center">${ev.type==='goal'?'⚽':ev.type==='yellow'?'🟨':'🟥'}</div><span class="text-[10px] font-black uppercase text-slate-400">${ev.side}</span></div><button onclick="window.app.deleteHistoricalEvent(${idx})" class="text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input type="text" value="${ev.playerName || ''}" placeholder="Edit Player Name" class="hist-event-name w-full p-2 text-sm font-bold border-b border-slate-100 focus:outline-none focus:border-emerald-500" data-index="${idx}"></div>`).join('')}</div><div class="flex gap-3 pt-4"><button onclick="window.app.openReport('${id}', false)" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl">Cancel</button><button onclick="window.app.handleSaveHistoricalEdit()" class="flex-1 py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">Save Changes</button></div><button onclick="window.app.deleteHistoryRecord('${id}')" class="w-full py-2 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:underline mt-4">Delete Record Permanently</button></div>`;
                 }
                 document.getElementById('report-modal').classList.remove('hidden'); lucide.createIcons();
             },
@@ -618,13 +562,15 @@
             },
 
             async handleSaveHistoricalEdit() {
-                const hS = parseInt(document.getElementById('hist-home-score').value) || 0;
-                const aS = parseInt(document.getElementById('hist-away-score').value) || 0;
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', this.currentReportMatchId), { homeScore: hS, awayScore: aS });
+                const hS = parseInt(document.getElementById('hist-home-score').value) || 0, aS = parseInt(document.getElementById('hist-away-score').value) || 0;
+                const m = this.history.find(h => h.id === this.currentReportMatchId); if(!m) return;
+                const updatedEvents = [...m.events];
+                document.querySelectorAll('.hist-event-name').forEach(input => { const idx = parseInt(input.dataset.index); if (updatedEvents[idx]) updatedEvents[idx].playerName = input.value; });
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', this.currentReportMatchId), { homeScore: hS, awayScore: aS, events: updatedEvents });
                 this.openReport(this.currentReportMatchId, false);
             },
 
-            async deleteHistoryRecord(id) { this.showConfirm("Delete History?", "Remove from history permanently?", async () => { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', id)); document.getElementById('report-modal').classList.add('hidden'); }); },
+            async deleteHistoryRecord(id) { this.showConfirm("Delete History?", "Remove permanently?", async () => { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', id)); document.getElementById('report-modal').classList.add('hidden'); }); },
 
             renderTeamList() { const c = document.getElementById('team-list'); if(!c) return; c.innerHTML = this.teams.length ? this.teams.map(t => `<div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-xl team-logo-container" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-6 h-6 text-white"></i>`}</div><div><div class="font-bold text-slate-800">${t.name}</div><div class="text-[10px] font-black tracking-widest text-slate-400 uppercase">${t.members?.length || 0} Members</div></div></div><div class="flex gap-1"><button onclick="window.app.openProfileModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="user" class="w-4 h-4"></i></button><button onclick="window.app.openEditModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="window.app.deleteTeam('${t.id}')" class="p-2 text-slate-400 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') : '<div class="text-center py-8 text-slate-300 italic">No clubs registered.</div>'; lucide.createIcons(); },
             renderSelects() { const hS = document.getElementById('home-select'), aS = document.getElementById('away-select'); if (!hS || !aS) return; const hv = hS.value, av = aS.value; const opts = (val, dis) => `<option value="">Select Club</option>` + this.teams.map(t => `<option value="${t.id}" ${t.id === val ? 'selected' : ''} ${t.id === dis ? 'disabled' : ''}>${t.name}</option>`).join(''); hS.innerHTML = opts(hS.value, aS.value); aS.innerHTML = opts(aS.value, hS.value); },
