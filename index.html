@@ -59,13 +59,6 @@
             height: 100%;
             object-fit: cover;
         }
-        
-        /* Glassmorphism for Match View */
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -241,6 +234,7 @@
     <!-- ========================================== -->
     <div id="home-view" class="hidden min-h-screen p-4 md:p-8 transition-opacity duration-300">
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Header -->
             <div class="lg:col-span-12 mb-4">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-200"><i data-lucide="trophy" class="text-white w-6 h-6"></i></div>
@@ -279,7 +273,7 @@
                                 <span id="banner-away-name" class="text-xs md:text-sm font-black text-white/60 tracking-wider uppercase truncate w-full">AWAY</span>
                             </div>
                         </div>
-                        <button onclick="window.app.resumeExistingMatch()" class="w-full mt-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20">Enter Match Interface <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        <button onclick="window.app.resumeExistingMatch()" class="w-full mt-6 py-4 bg-emerald-600 hover:bg-emerald-50 text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20">Enter Match Interface <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                 </div>
 
@@ -327,7 +321,7 @@
                     <div id="scorers-leaderboard" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 no-scrollbar"></div>
                 </div>
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-fit">
-                    <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="history" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">Match History</h2></div>
+                    <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="history" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">Recent History</h2></div>
                     <div id="history-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 no-scrollbar"></div>
                 </div>
             </div>
@@ -421,7 +415,7 @@
             // --- AUTH ---
             toggleAuthMode() { this.isSignup = !this.isSignup; document.getElementById('auth-subtitle').textContent = this.isSignup ? "Create account." : "Welcome back!"; document.getElementById('auth-main-btn').textContent = this.isSignup ? "Create Account" : "Login"; document.getElementById('auth-toggle-btn').textContent = this.isSignup ? "Login instead" : "Sign Up instead"; },
             async handleAuthAction() { const e = document.getElementById('auth-email').value, p = document.getElementById('auth-password').value; if(!e || !p) return; try { if(this.isSignup) await createUserWithEmailAndPassword(auth, e, p); else await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); } },
-            async signInWithGoogle() { try { await signInWithPopup(auth, googleProvider); } catch(e) { if(e.code !== 'auth/popup-closed-by-user') alert(e.message); } },
+            async signInWithGoogle() { try { await signInWithPopup(auth, googleProvider); } catch(e) { if(e.code !== 'auth/popup-closed-by-user') console.error(e); } },
             handleLogout() { this.showConfirm("Logout?", "Sign out?", () => signOut(auth)); },
 
             // --- UI HELPERS ---
@@ -486,7 +480,7 @@
                 document.getElementById('selection-title').textContent = type==='goal'?"Who Scored?":type==='yellow'?"Yellow Card?":"Red Card?";
                 document.getElementById('selection-team-label').textContent = t ? t.name : "...";
                 const list = document.getElementById('selection-list'), mem = t?.members || [];
-                list.innerHTML = mem.length ? mem.map(m => `<button onclick="window.app.recordMemberEvent('${m.id}')" class="w-full p-4 rounded-2xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all font-bold text-slate-700 flex justify-between items-center group">${m.name}<i data-lucide="plus-circle" class="w-4 h-4 text-slate-300 group-hover:text-emerald-600"></i></button>`).join('') : '<div class="text-center py-6 text-slate-400 italic">No players.</div>';
+                list.innerHTML = mem.length ? mem.map(m => `<button onclick="window.app.recordMemberEvent('${m.id}')" class="w-full p-4 rounded-2xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all font-bold text-slate-700 flex justify-between items-center group">${m.name}<i data-lucide="plus-circle" class="w-4 h-4 text-slate-300 group-hover:text-emerald-600"></i></button>`).join('') : '<div class="text-center py-6 text-slate-400 italic">No players registered.</div>';
                 document.getElementById('member-selection-overlay').classList.remove('hidden'); lucide.createIcons();
             },
 
@@ -502,6 +496,23 @@
                 this.pendingEvent = { side: null, type: null };
             },
 
+            async deleteEvent(index) {
+                if (!this.user) return;
+                this.showConfirm("Correction?", "Remove this event and adjust the score?", async () => {
+                    const ev = this.currentMatch.events[index];
+                    const newEvents = [...this.currentMatch.events];
+                    newEvents.splice(index, 1);
+                    
+                    const up = { events: newEvents };
+                    if (ev.type === 'goal') {
+                        if (ev.side === 'home') up.homeScore = Math.max(0, this.currentMatch.homeScore - 1);
+                        else up.awayScore = Math.max(0, this.currentMatch.awayScore - 1);
+                    }
+                    
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), up);
+                });
+            },
+
             triggerGoalFX(txt) { this.playSound(); this.confetti.start(); const el = document.getElementById('goal-overlay'); document.getElementById('goal-message').textContent = `FOR ${txt}`; el.classList.remove('hidden'); setTimeout(() => { el.classList.add('hidden'); this.confetti.stop(); }, 3000); },
             async togglePause() { await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: this.currentMatch.status === 'live' ? 'paused' : 'live' }); },
             restartMatch() { this.showConfirm("Restart?", "Reset score and time?", () => updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { homeScore: 0, awayScore: 0, elapsed: 0, events: [], status: 'live', date: Date.now() })); },
@@ -509,24 +520,40 @@
 
             renderTimeline() {
                 const c = document.getElementById('match-timeline'); if(!c) return;
-                if (!this.currentMatch.events || this.currentMatch.events.length === 0) { c.innerHTML = '<div class="text-center py-12 text-slate-600 italic">Kickoff pending...</div>'; return; }
-                c.innerHTML = this.currentMatch.events.slice().reverse().map(ev => {
+                if (!this.currentMatch.events || this.currentMatch.events.length === 0) { c.innerHTML = '<div class="text-center py-12 text-slate-600 italic">Waiting for kickoff...</div>'; return; }
+                
+                // Show in reverse order (newest top)
+                const items = [...this.currentMatch.events].reverse();
+                c.innerHTML = items.map((ev, i) => {
+                    const originalIndex = this.currentMatch.events.length - 1 - i;
+                    const align = ev.side === 'away' ? 'flex-row-reverse text-right' : '';
                     const icon = ev.type === 'goal' ? '<i data-lucide="goal" class="w-4 h-4 text-emerald-500"></i>' : `<span class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></span>`;
-                    return `<div class="flex items-center gap-3 animate-fade-in ${ev.side === 'away' ? 'flex-row-reverse text-right' : ''}"><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">${icon}</div><div class="flex-1"><div class="text-xs font-black text-white">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</div><div class="text-[10px] text-slate-500 font-bold uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</div></div></div>`;
+                    
+                    return `
+                        <div class="flex items-center gap-3 animate-fade-in group ${align}">
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 shadow-sm">${icon}</div>
+                            <div class="flex-1">
+                                <div class="text-xs font-black text-white">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</div>
+                                <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${ev.type} · ${Math.floor(ev.time / 60)}'</div>
+                            </div>
+                            <button onclick="window.app.deleteEvent(${originalIndex})" class="p-2 text-slate-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>`;
                 }).join('');
                 lucide.createIcons();
             },
 
             openReport(id) {
                 const m = this.history.find(h => h.id === id); if(!m) return;
-                const hT = this.teams.find(t => t.id === m.homeId) || def, aT = this.teams.find(t => t.id === m.awayId) || def;
-                document.getElementById('report-content').innerHTML = `<div class="text-center py-6 bg-slate-900 rounded-3xl text-white shadow-xl mb-6"><p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">${new Date(m.date).toLocaleDateString()}</p><div class="flex items-center justify-around px-4"><div class="flex-1 text-right pr-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${hT.name}</p><p class="text-4xl font-black">${m.homeScore}</p></div><div class="text-xl font-light text-white/20">VS</div><div class="flex-1 text-left pl-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${aT.name}</p><p class="text-4xl font-black">${m.awayScore}</p></div></div></div><div class="space-y-4"><p class="text-[10px] font-black uppercase text-slate-400">Match Timeline</p>${(m.events || []).map(ev => { const align = ev.side==='home'?'text-left':'text-right flex-row-reverse'; return `<div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 ${align}"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">${ev.type==='goal'?'<i data-lucide="goal" class="w-4 h-4"></i>':`<div class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></div>`}</div><div class="flex-1"><p class="text-xs font-black text-slate-800">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</p></div></div>`; }).join('')}</div><button onclick="window.app.deleteHistoryRecord('${id}')" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-2xl text-xs mt-6">Delete Permanent Record</button>`;
+                const hT = this.teams.find(t => t.id === m.homeId) || { name: 'Home' }, aT = this.teams.find(t => t.id === m.awayId) || { name: 'Away' };
+                document.getElementById('report-content').innerHTML = `<div class="text-center py-6 bg-slate-900 rounded-3xl text-white shadow-xl mb-6"><p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">${new Date(m.date).toLocaleDateString()}</p><div class="flex items-center justify-around px-4"><div class="flex-1 text-right pr-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${hT.name}</p><p class="text-4xl font-black">${m.homeScore}</p></div><div class="text-xl font-light text-white/20">VS</div><div class="flex-1 text-left pl-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${aT.name}</p><p class="text-4xl font-black">${m.awayScore}</p></div></div></div><div class="space-y-4"><p class="text-[10px] font-black uppercase text-slate-400">Match Timeline</p>${(m.events || []).map(ev => { const align = ev.side==='home'?'text-left':'text-right flex-row-reverse'; return `<div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 ${align}"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">${ev.type==='goal'?'<i data-lucide="goal" class="w-4 h-4"></i>':`<div class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></div>`}</div><div class="flex-1"><p class="text-xs font-black text-slate-800">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</p></div></div>`; }).join('')}</div><button onclick="window.app.deleteHistoryRecord('${id}')" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-2xl text-xs mt-6">Delete Match Record</button>`;
                 document.getElementById('report-modal').classList.remove('hidden'); lucide.createIcons();
             },
             async deleteHistoryRecord(id) { this.showConfirm("Delete?", "Remove from history?", async () => { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', id)); document.getElementById('report-modal').classList.add('hidden'); }); },
 
             renderTeamList() { const c = document.getElementById('team-list'); if(!c) return; c.innerHTML = this.teams.length ? this.teams.map(t => `<div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-xl team-logo-container" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-6 h-6 text-white"></i>`}</div><div><div class="font-bold text-slate-800">${t.name}</div><div class="text-[10px] font-black tracking-widest text-slate-400 uppercase">${t.members?.length || 0} Members</div></div></div><div class="flex gap-1"><button onclick="window.app.openProfileModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="user" class="w-4 h-4"></i></button><button onclick="window.app.openEditModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="window.app.deleteTeam('${t.id}')" class="p-2 text-slate-400 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') : '<div class="text-center py-8 text-slate-300 italic">No clubs registered.</div>'; lucide.createIcons(); },
-            renderSelects() { const hS = document.getElementById('home-select'), aS = document.getElementById('away-select'); if (!hS || !aS) return; const opts = (val, dis) => `<option value="">Select Club</option>` + this.teams.map(t => `<option value="${t.id}" ${t.id === val ? 'selected' : ''} ${t.id === dis ? 'disabled' : ''}>${t.name}</option>`).join(''); hS.innerHTML = opts(hS.value, aS.value); aS.innerHTML = opts(aS.value, hS.value); },
+            renderSelects() { const hS = document.getElementById('home-select'), aS = document.getElementById('away-select'); if (!hS || !aS) return; const hv = hS.value, av = aS.value; const opts = (val, dis) => `<option value="">Select Club</option>` + this.teams.map(t => `<option value="${t.id}" ${t.id === val ? 'selected' : ''} ${t.id === dis ? 'disabled' : ''}>${t.name}</option>`).join(''); hS.innerHTML = opts(hS.value, aS.value); aS.innerHTML = opts(aS.value, hS.value); },
             async addTeam(e) { e.preventDefault(); const n = document.getElementById('team-name-input').value, s = document.getElementById('team-short-input').value.toUpperCase(), c = document.getElementById('team-color-input').value, i = document.getElementById('team-icon-input').value, l = document.getElementById('team-logo-url-input').value; await addDoc(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams'), { name: n, short: s, color: c, icon: i, logoUrl: l, members: [], created: Date.now() }); e.target.reset(); },
             deleteTeam(id) { this.showConfirm("Delete Club?", "Permanently remove this team?", async () => await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id))); },
             openProfileModal(id) { const t = this.teams.find(t => t.id === id); if (!t) return; const s = this.calculateStats(id); document.getElementById('profile-content').innerHTML = `<div class="flex items-center gap-6"><div class="w-24 h-24 rounded-3xl team-logo-container shadow-xl text-white" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-12 h-12"></i>`}</div><div class="flex-1"><h2 class="text-3xl font-black tracking-tight">${t.name}</h2><div class="flex items-center gap-2 mt-1"><span class="text-xs font-black tracking-[0.2em] text-white bg-slate-900 px-3 py-1 rounded-full">${t.short}</span><span class="text-xs text-slate-400 font-bold">${t.members?.length || 0} Members</span></div></div></div><div class="grid grid-cols-3 md:grid-cols-6 gap-3">${['Played', 'Wins', 'Draws', 'Losses', 'GD', 'Points'].map(l => `<div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center"><div class="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">${l}</div><div class="font-bold text-lg">${l==='Points'? s.pts : s[l.toLowerCase()==='played'?'mp':l.toLowerCase()==='gd'?'gd_str':l.toLowerCase().charAt(0)]}</div></div>`).join('')}</div>`; document.getElementById('profile-modal').classList.remove('hidden'); lucide.createIcons(); },
