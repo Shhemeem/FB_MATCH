@@ -59,6 +59,13 @@
             height: 100%;
             object-fit: cover;
         }
+        
+        /* Glassmorphism for Match View */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -67,8 +74,8 @@
     <!-- AUTH VIEW (Login / Sign Up)                -->
     <!-- ========================================== -->
     <div id="auth-view" class="min-h-screen flex items-center justify-center p-4 bg-emerald-600 transition-opacity duration-300">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 space-y-6">
-            <div class="text-center space-y-2">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 space-y-6 text-center animate-fade-in">
+            <div class="space-y-2">
                 <div class="inline-flex p-3 rounded-2xl bg-emerald-50 text-emerald-600 mb-2">
                     <i data-lucide="trophy" class="w-8 h-8"></i>
                 </div>
@@ -76,7 +83,7 @@
                 <p class="text-slate-400 text-sm font-medium" id="auth-subtitle">Welcome back! Please login to your account.</p>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 text-left">
                 <div class="space-y-1">
                     <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
                     <input type="email" id="auth-email" placeholder="name@example.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:outline-none focus:border-emerald-500 font-semibold transition-all">
@@ -98,21 +105,49 @@
                 </div>
 
                 <button onclick="window.app.signInWithGoogle()" class="w-full py-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                     Google Account
                 </button>
             </div>
 
-            <div class="text-center">
+            <div class="text-center pt-2">
                 <button onclick="window.app.toggleAuthMode()" id="auth-toggle-btn" class="text-xs font-bold text-emerald-600 hover:underline">
                     Don't have an account? Sign Up
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CONFIRMATION MODAL                         -->
+    <!-- ========================================== -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 modal-backdrop animate-fade-in">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 text-center space-y-6 border border-slate-100">
+            <div class="inline-flex p-3 rounded-2xl bg-red-50 text-red-600"><i data-lucide="alert-circle" class="w-8 h-8"></i></div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-bold text-slate-800" id="confirm-title">Confirm Action</h3>
+                <p class="text-slate-500 text-sm font-medium leading-relaxed" id="confirm-message">Are you sure you want to proceed?</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.app.closeConfirmModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm">Cancel</button>
+                <button id="confirm-action-btn" class="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 text-sm">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MATCH REPORT MODAL                         -->
+    <!-- ========================================== -->
+    <div id="report-modal" class="hidden fixed inset-0 z-[130] flex items-center justify-center p-4 modal-backdrop animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="scroll-text" class="text-emerald-600 w-5 h-5"></i>
+                    <h3 class="text-xl font-bold text-slate-800">Match Report</h3>
+                </div>
+                <button onclick="document.getElementById('report-modal').classList.add('hidden')" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="report-content" class="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar"></div>
         </div>
     </div>
 
@@ -122,14 +157,9 @@
     <div id="profile-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4 modal-backdrop animate-fade-in">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="user" class="text-emerald-600 w-5 h-5"></i> Club Profile
-                </h3>
-                <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i data-lucide="user" class="text-emerald-600 w-5 h-5"></i> Club Profile</h3>
+                <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
             <div id="profile-content" class="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar"></div>
         </div>
     </div>
@@ -140,14 +170,9 @@
     <div id="edit-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop animate-fade-in">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="edit-3" class="text-emerald-600 w-5 h-5"></i> Manage Club & Squad
-                </h3>
-                <button onclick="window.app.closeEditModal()" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i data-lucide="edit-3" class="text-emerald-600 w-5 h-5"></i> Manage Club & Squad</h3>
+                <button onclick="window.app.closeEditModal()" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
             <div class="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
                 <form onsubmit="window.app.handleUpdateTeam(event)" class="space-y-4">
                     <input type="hidden" id="edit-team-id">
@@ -175,14 +200,7 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Fallback Icon</label>
                             <select id="edit-team-icon" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-semibold appearance-none bg-slate-50">
-                                <option value="shield">🛡️ Shield</option>
-                                <option value="trophy">🏆 Trophy</option>
-                                <option value="star">⭐ Star</option>
-                                <option value="zap">⚡ Lightning</option>
-                                <option value="heart">❤️ Heart</option>
-                                <option value="flame">🔥 Flame</option>
-                                <option value="crown">👑 Crown</option>
-                                <option value="anchor">⚓ Anchor</option>
+                                <option value="shield">🛡️ Shield</option><option value="trophy">🏆 Trophy</option><option value="star">⭐ Star</option><option value="zap">⚡ Lightning</option><option value="heart">❤️ Heart</option><option value="flame">🔥 Flame</option><option value="crown">👑 Crown</option><option value="anchor">⚓ Anchor</option>
                             </select>
                         </div>
                     </div>
@@ -223,7 +241,6 @@
     <!-- ========================================== -->
     <div id="home-view" class="hidden min-h-screen p-4 md:p-8 transition-opacity duration-300">
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Header -->
             <div class="lg:col-span-12 mb-4">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-200"><i data-lucide="trophy" class="text-white w-6 h-6"></i></div>
@@ -242,35 +259,30 @@
             <div class="lg:col-span-7 space-y-8">
                 <!-- LIVE MATCH BANNER -->
                 <div id="live-match-banner" class="hidden animate-fade-in">
-                    <div class="bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl shadow-emerald-900/20 border border-white/5 relative overflow-hidden group text-center">
+                    <div class="bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl border border-white/5 relative overflow-hidden group text-center">
                         <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black tracking-[0.2em] px-3 py-1 rounded-full flex items-center gap-2 z-10 animate-pulse">
                             <span class="w-1.5 h-1.5 bg-white rounded-full"></span> LIVE NOW
                         </div>
                         <div class="flex items-center justify-between gap-4 mt-4">
                             <div class="flex-1 flex flex-col items-center gap-2">
-                                <div id="banner-home-badge" class="team-logo-container w-16 h-16 md:w-24 md:h-24 rounded-3xl shadow-lg border border-white/10 flex items-center justify-center text-white"></div>
+                                <div id="banner-home-badge" class="team-logo-container w-16 h-16 md:w-24 md:h-24 rounded-3xl border border-white/10 flex items-center justify-center text-white"></div>
                                 <span id="banner-home-name" class="text-xs md:text-sm font-black text-white/60 tracking-wider uppercase truncate w-full">HOME</span>
                             </div>
                             <div class="flex flex-col items-center gap-1">
-                                <div class="flex items-center gap-4 text-4xl md:text-6xl font-black font-mono text-white tabular-nums tracking-tighter">
-                                    <span id="banner-home-score">0</span>
-                                    <span class="text-white/20 font-light">-</span>
-                                    <span id="banner-away-score">0</span>
+                                <div class="flex items-center gap-4 text-4xl md:text-6xl font-black font-mono text-white tabular-nums">
+                                    <span id="banner-home-score">0</span><span class="text-white/20 font-light">-</span><span id="banner-away-score">0</span>
                                 </div>
-                                <div id="banner-timer" class="text-emerald-400 font-mono text-lg md:text-xl font-bold tracking-widest">00:00</div>
+                                <div id="banner-timer" class="text-emerald-400 font-mono text-lg font-bold">00:00</div>
                             </div>
                             <div class="flex-1 flex flex-col items-center gap-2">
-                                <div id="banner-away-badge" class="team-logo-container w-16 h-16 md:w-24 md:h-24 rounded-3xl shadow-lg border border-white/10 flex items-center justify-center text-white"></div>
+                                <div id="banner-away-badge" class="team-logo-container w-16 h-16 md:w-24 md:h-24 rounded-3xl border border-white/10 flex items-center justify-center text-white"></div>
                                 <span id="banner-away-name" class="text-xs md:text-sm font-black text-white/60 tracking-wider uppercase truncate w-full">AWAY</span>
                             </div>
                         </div>
-                        <button onclick="window.app.resumeExistingMatch()" class="w-full mt-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20">
-                            Enter Match Interface <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                        </button>
+                        <button onclick="window.app.resumeExistingMatch()" class="w-full mt-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20">Enter Match Interface <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                 </div>
 
-                <!-- Match Setup -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="layout-dashboard" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">New Match</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 relative">
@@ -278,16 +290,14 @@
                         <div class="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none mt-6"><div class="bg-white rounded-full p-2 text-slate-300 font-black text-xs z-10 border border-slate-100 shadow-sm">VS</div></div>
                         <div class="space-y-2"><label class="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Away Team</label><select id="away-select" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition font-semibold appearance-none"><option value="">Select Away</option></select></div>
                     </div>
-                    <button onclick="window.app.startMatch()" id="start-btn" disabled class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-emerald-600 disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5 fill-current"></i> Create Match</button>
+                    <button onclick="window.app.startMatch()" id="start-btn" disabled class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5 fill-current"></i> Create Match</button>
                 </div>
 
-                <!-- Standings -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="list-ordered" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">Standings</h2></div>
                     <div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="text-[10px] text-slate-400 uppercase tracking-widest bg-slate-50/50"><tr><th class="px-4 py-3 rounded-l-xl">Team</th><th class="px-4 py-3 text-center">MP</th><th class="px-4 py-3 text-center">W</th><th class="px-4 py-3 text-center">D</th><th class="px-4 py-3 text-center">L</th><th class="px-4 py-3 text-center">GD</th><th class="px-4 py-3 text-center rounded-r-xl">Pts</th></tr></thead><tbody id="standings-body"></tbody></table></div>
                 </div>
 
-                <!-- Danger Zone -->
                 <div class="bg-red-50/30 p-6 rounded-3xl border border-red-100">
                     <div class="flex items-center gap-2 mb-6 text-red-800"><i data-lucide="alert-triangle" class="w-5 h-5"></i><h2 class="text-lg font-black uppercase tracking-tight">Danger Zone</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,33 +314,21 @@
                     <form onsubmit="window.app.addTeam(event)" class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 space-y-3">
                         <input type="text" id="team-name-input" placeholder="Team Name" required class="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold">
                         <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="team-short-input" placeholder="ABC" maxLength="3" required class="w-full p-3 rounded-xl border border-slate-200 text-sm font-bold uppercase text-center">
-                            <input type="color" id="team-color-input" value="#10b981" class="w-full h-[46px] rounded-xl border border-slate-200 cursor-pointer p-1 bg-white">
+                            <input type="text" id="team-short-input" placeholder="ABC" maxLength="3" required class="w-full p-3 rounded-xl border border-slate-200 text-sm font-bold uppercase text-center"><input type="color" id="team-color-input" value="#10b981" class="w-full h-[46px] rounded-xl border border-slate-200 p-1 bg-white">
                         </div>
                         <input type="url" id="team-logo-url-input" placeholder="Logo Image URL (Optional)" class="w-full p-3 rounded-xl border border-slate-200 text-xs">
-                        
-                        <!-- Added the missing team icon input field -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Default Icon</label>
-                            <select id="team-icon-input" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 text-sm font-semibold appearance-none bg-white">
-                                <option value="shield">🛡️ Shield</option>
-                                <option value="trophy">🏆 Trophy</option>
-                                <option value="star">⭐ Star</option>
-                                <option value="zap">⚡ Lightning</option>
-                                <option value="heart">❤️ Heart</option>
-                                <option value="flame">🔥 Flame</option>
-                                <option value="crown">👑 Crown</option>
-                                <option value="anchor">⚓ Anchor</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all text-sm shadow-lg shadow-emerald-200 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Add Club</button>
+                        <div class="space-y-1"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Default Icon</label><select id="team-icon-input" class="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold appearance-none bg-white"><option value="shield">🛡️ Shield</option><option value="trophy">🏆 Trophy</option><option value="star">⭐ Star</option><option value="zap">⚡ Lightning</option><option value="heart">❤️ Heart</option><option value="flame">🔥 Flame</option><option value="crown">👑 Crown</option><option value="anchor">⚓ Anchor</option></select></div>
+                        <button type="submit" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all text-sm shadow-lg flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Add Club</button>
                     </form>
                     <div id="team-list" class="flex-1 overflow-y-auto pr-2 space-y-2 max-h-[350px] no-scrollbar"></div>
                 </div>
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-fit">
                     <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="award" class="text-amber-500 w-5 h-5"></i><h2 class="text-xl font-bold">Top Scorers</h2></div>
                     <div id="scorers-leaderboard" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 no-scrollbar"></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-fit">
+                    <div class="flex items-center gap-2 mb-6 text-slate-800"><i data-lucide="history" class="text-emerald-600 w-5 h-5"></i><h2 class="text-xl font-bold">Match History</h2></div>
+                    <div id="history-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 no-scrollbar"></div>
                 </div>
             </div>
         </div>
@@ -341,13 +339,7 @@
     <!-- ========================================== -->
     <div id="match-view" class="hidden min-h-screen bg-slate-950 text-white font-sans overflow-hidden relative transition-opacity duration-300">
         <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
-        <div id="goal-overlay" class="hidden fixed inset-0 flex items-center justify-center z-[100] bg-slate-950/80 backdrop-blur-md">
-            <div class="text-center animate-bounce-in">
-                <h1 class="text-7xl md:text-[10rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-emerald-400 to-emerald-600">GOAL!</h1>
-                <p id="goal-message" class="text-xl md:text-3xl mt-4 text-white font-black tracking-[0.3em] uppercase opacity-80"></p>
-            </div>
-        </div>
-
+        <div id="goal-overlay" class="hidden fixed inset-0 flex items-center justify-center z-[100] bg-slate-950/80 backdrop-blur-md text-center"><div class="animate-bounce-in"><h1 class="text-7xl md:text-[10rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-emerald-400 to-emerald-600">GOAL!</h1><p id="goal-message" class="text-xl md:text-3xl mt-4 text-white font-black tracking-[0.3em] uppercase opacity-80"></p></div></div>
         <div class="p-4 flex justify-between items-center bg-slate-900/40 border-b border-white/5 backdrop-blur-xl sticky top-0 z-40">
             <button onclick="window.app.exitMatch()" class="flex items-center text-slate-400 hover:text-white transition group px-3 py-2 rounded-xl hover:bg-white/5"><i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i> <span class="ml-2 font-bold text-sm">Dashboard</span></button>
             <div class="flex items-center gap-2">
@@ -359,406 +351,198 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col items-center">
-            <div class="mb-12">
-                <div id="timer-container" class="px-8 py-3 rounded-2xl flex items-center gap-3 text-4xl md:text-5xl font-mono font-bold tracking-tighter border bg-slate-900/50 border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                    <span id="timer-display">00:00</span><span id="ft-badge" class="hidden ml-2 text-lg text-slate-500 font-sans tracking-normal bg-slate-800 px-3 py-1 rounded-lg">FINAL</span>
-                </div>
-            </div>
-            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div class="mb-12"><div id="timer-container" class="px-8 py-3 rounded-2xl flex items-center gap-3 text-4xl md:text-5xl font-mono font-bold tracking-tighter border bg-slate-900/50 border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]"><span id="timer-display">00:00</span><span id="ft-badge" class="hidden ml-2 text-lg text-slate-500 font-sans tracking-normal bg-slate-800 px-3 py-1 rounded-lg">FINAL</span></div></div>
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-center">
                 <div class="lg:col-span-4 flex flex-col items-center">
-                    <div id="home-badge" class="team-logo-container w-32 h-32 md:w-48 md:h-48 rounded-[2.5rem] flex items-center justify-center text-4xl md:text-6xl font-black mb-6 shadow-2xl border-4 border-white/5"></div>
-                    <h2 id="home-name" class="text-3xl md:text-4xl font-black tracking-tight text-center mb-1 truncate w-full text-white">Home</h2>
+                    <div id="home-badge" class="team-logo-container w-32 h-32 md:w-48 md:h-48 rounded-[2.5rem] flex items-center justify-center text-4xl md:text-6xl font-black mb-6 shadow-2xl border-4 border-white/5 transition-transform duration-300"></div>
+                    <h2 id="home-name" class="text-3xl md:text-4xl font-black tracking-tight text-white truncate w-full">Home</h2>
                     <div class="grid grid-cols-2 gap-3 mt-8 w-full max-w-xs">
                         <button id="home-goal-btn" onclick="window.app.handleMemberSelection('home', 'goal')" class="col-span-2 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-xl transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-2">GOAL <i data-lucide="plus" class="w-5 h-5"></i></button>
-                        <button onclick="window.app.handleMemberSelection('home', 'yellow')" class="py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-20">YELLOW</button>
-                        <button onclick="window.app.handleMemberSelection('home', 'red')" class="py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-20">RED</button>
+                        <button onclick="window.app.handleMemberSelection('home', 'yellow')" class="py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 transition-all disabled:opacity-20">YELLOW</button>
+                        <button onclick="window.app.handleMemberSelection('home', 'red')" class="py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 transition-all disabled:opacity-20">RED</button>
                     </div>
                 </div>
                 <div class="lg:col-span-4 flex flex-col items-center">
                     <div class="flex justify-center items-center gap-6 md:gap-10 mb-12">
-                        <div id="home-score" class="text-8xl md:text-[10rem] font-black tabular-nums text-white">0</div>
+                        <div id="home-score" class="text-8xl md:text-[10rem] font-black tabular-nums text-white tracking-tighter">0</div>
                         <div class="text-4xl text-slate-700 font-light">-</div>
-                        <div id="away-score" class="text-8xl md:text-[10rem] font-black tabular-nums text-white">0</div>
+                        <div id="away-score" class="text-8xl md:text-[10rem] font-black tabular-nums text-white tracking-tighter">0</div>
                     </div>
-                    <div class="w-full bg-slate-900/50 rounded-3xl border border-white/5 p-6 h-[400px] flex flex-col relative overflow-hidden">
-                        <div class="flex items-center gap-2 mb-4 text-slate-500 font-bold uppercase tracking-widest text-xs"><i data-lucide="scroll-text" class="w-4 h-4"></i> Match Events</div>
-                        <div id="match-timeline" class="flex-1 overflow-y-auto space-y-3 no-scrollbar timeline-gradient"></div>
-                    </div>
+                    <div class="w-full bg-slate-900/50 rounded-3xl border border-white/5 p-6 h-[400px] flex flex-col relative overflow-hidden text-left"><div class="flex items-center gap-2 mb-4 text-slate-500 font-bold uppercase tracking-widest text-xs"><i data-lucide="scroll-text" class="w-4 h-4"></i> Match Events</div><div id="match-timeline" class="flex-1 overflow-y-auto space-y-3 no-scrollbar timeline-gradient"></div></div>
                 </div>
                 <div class="lg:col-span-4 flex flex-col items-center">
-                    <div id="away-badge" class="team-logo-container w-32 h-32 md:w-48 md:h-48 rounded-[2.5rem] flex items-center justify-center text-4xl md:text-6xl font-black mb-6 shadow-2xl border-4 border-white/5"></div>
-                    <h2 id="away-name" class="text-3xl md:text-4xl font-black tracking-tight text-center mb-1 truncate w-full text-white">Away</h2>
+                    <div id="away-badge" class="team-logo-container w-32 h-32 md:w-48 md:h-48 rounded-[2.5rem] flex items-center justify-center text-4xl md:text-6xl font-black mb-6 shadow-2xl border-4 border-white/5 transition-transform duration-300"></div>
+                    <h2 id="away-name" class="text-3xl md:text-4xl font-black tracking-tight text-white truncate w-full">Away</h2>
                     <div class="grid grid-cols-2 gap-3 mt-8 w-full max-w-xs">
-                        <button id="away-goal-btn" onclick="window.app.handleMemberSelection('away', 'goal')" class="col-span-2 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-xl active:scale-95 disabled:opacity-20 flex items-center justify-center gap-2">GOAL <i data-lucide="plus" class="w-5 h-5"></i></button>
-                        <button onclick="window.app.handleMemberSelection('away', 'yellow')" class="py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-20">YELLOW</button>
-                        <button onclick="window.app.handleMemberSelection('away', 'red')" class="py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 disabled:opacity-20">RED</button>
+                        <button id="away-goal-btn" onclick="window.app.handleMemberSelection('away', 'goal')" class="col-span-2 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-xl transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-2">GOAL <i data-lucide="plus" class="w-5 h-5"></i></button>
+                        <button onclick="window.app.handleMemberSelection('away', 'yellow')" class="py-3 bg-yellow-500 text-black rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 transition-all disabled:opacity-20">YELLOW</button>
+                        <button onclick="window.app.handleMemberSelection('away', 'red')" class="py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-95 transition-all disabled:opacity-20">RED</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, onSnapshot, getDocs, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDnzwqlzRyHNfgwIXNX7VcSvVJPltbtthY",
-            authDomain: "fb-match-8b63f.firebaseapp.com",
-            projectId: "fb-match-8b63f",
-            storageBucket: "fb-match-8b63f.firebasestorage.app",
-            messagingSenderId: "31592252703",
-            appId: "1:31592252703:web:aa9dd7deaff8d104d59c2a",
-            measurementId: "G-05JSGSCXQW"
+            apiKey: "AIzaSyDnzwqlzRyHNfgwIXNX7VcSvVJPltbtthY", authDomain: "fb-match-8b63f.firebaseapp.com", projectId: "fb-match-8b63f", storageBucket: "fb-match-8b63f.firebasestorage.app", messagingSenderId: "31592252703", appId: "1:31592252703:web:aa9dd7deaff8d104d59c2a", measurementId: "G-05JSGSCXQW"
         };
         
         const fb_app = initializeApp(firebaseConfig);
-        const auth = getAuth(fb_app);
-        const db = getFirestore(fb_app);
+        const auth = getAuth(fb_app); const db = getFirestore(fb_app);
         const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'matchday-pro-plus';
         const googleProvider = new GoogleAuthProvider();
 
         const app = {
             user: null, teams: [], history: [], isSignup: false,
             currentMatch: { homeId: null, awayId: null, homeScore: 0, awayScore: 0, elapsed: 0, status: 'scheduled', events: [], timerId: null },
-            pendingEvent: { side: null, type: null },
-            settings: { sound: true }, confetti: null,
+            pendingEvent: { side: null, type: null }, confirmCallback: null, settings: { sound: true }, confetti: null,
 
             async init() {
-                this.confetti = new ConfettiSystem();
-                lucide.createIcons();
-                this.setupInputs();
-
+                this.confetti = new ConfettiSystem(); lucide.createIcons(); this.setupInputs();
                 onAuthStateChanged(auth, (user) => {
                     this.user = user;
-                    const authView = document.getElementById('auth-view');
-                    const homeView = document.getElementById('home-view');
-                    const matchView = document.getElementById('match-view');
-
                     if (user) {
-                        authView.classList.add('hidden');
-                        homeView.classList.remove('hidden');
-                        document.getElementById('auth-status').textContent = `USER: ${user.email || 'Google User'}`;
+                        document.getElementById('auth-view').classList.add('hidden'); document.getElementById('home-view').classList.remove('hidden');
+                        document.getElementById('auth-status').textContent = `USER: ${user.email || 'Google Account'}`;
                         document.getElementById('auth-indicator').className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]";
                         this.bindListeners();
                     } else {
-                        authView.classList.remove('hidden');
-                        homeView.classList.add('hidden');
-                        matchView.classList.add('hidden');
+                        document.getElementById('auth-view').classList.remove('hidden'); document.getElementById('home-view').classList.add('hidden'); document.getElementById('match-view').classList.add('hidden');
                     }
                 });
             },
 
-            // --- AUTH LOGIC ---
-            toggleAuthMode() {
-                this.isSignup = !this.isSignup;
-                document.getElementById('auth-subtitle').textContent = this.isSignup ? "Create a new account to get started." : "Welcome back! Please login to your account.";
-                document.getElementById('auth-main-btn').textContent = this.isSignup ? "Create Account" : "Login to Dashboard";
-                document.getElementById('auth-toggle-btn').textContent = this.isSignup ? "Already have an account? Login" : "Don't have an account? Sign Up";
-            },
+            // --- AUTH ---
+            toggleAuthMode() { this.isSignup = !this.isSignup; document.getElementById('auth-subtitle').textContent = this.isSignup ? "Create account." : "Welcome back!"; document.getElementById('auth-main-btn').textContent = this.isSignup ? "Create Account" : "Login"; document.getElementById('auth-toggle-btn').textContent = this.isSignup ? "Login instead" : "Sign Up instead"; },
+            async handleAuthAction() { const e = document.getElementById('auth-email').value, p = document.getElementById('auth-password').value; if(!e || !p) return; try { if(this.isSignup) await createUserWithEmailAndPassword(auth, e, p); else await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); } },
+            async signInWithGoogle() { try { await signInWithPopup(auth, googleProvider); } catch(e) { if(e.code !== 'auth/popup-closed-by-user') alert(e.message); } },
+            handleLogout() { this.showConfirm("Logout?", "Sign out?", () => signOut(auth)); },
 
-            async handleAuthAction() {
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-password').value;
-                if(!email || !password) return alert("Please enter email and password");
-                try {
-                    if(this.isSignup) await createUserWithEmailAndPassword(auth, email, password);
-                    else await signInWithEmailAndPassword(auth, email, password);
-                } catch(e) { alert(e.message); }
-            },
+            // --- UI HELPERS ---
+            showConfirm(title, message, callback) { document.getElementById('confirm-title').textContent = title; document.getElementById('confirm-message').textContent = message; this.confirmCallback = callback; document.getElementById('confirm-modal').classList.remove('hidden'); document.getElementById('confirm-action-btn').onclick = () => { if(this.confirmCallback) this.confirmCallback(); this.closeConfirmModal(); }; lucide.createIcons(); },
+            closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); this.confirmCallback = null; },
 
-            async signInWithGoogle() {
-                try { 
-                    await signInWithPopup(auth, googleProvider); 
-                } catch(e) { 
-                    if (e.code === 'auth/popup-closed-by-user') return;
-                    if (e.code === 'auth/cancelled-by-user') return;
-                    console.error("Google Auth Error:", e);
-                    alert("Google Sign-in failed. This often happens if the popup is blocked or the window is closed before completion."); 
-                }
-            },
-
-            async handleLogout() {
-                if(confirm("Are you sure you want to logout?")) await signOut(auth);
-            },
-
-            // --- APP CORE ---
-            setupInputs() {
-                const h = document.getElementById('home-select'), a = document.getElementById('away-select');
-                if(h && a) {
-                    const check = () => { document.getElementById('start-btn').disabled = !(h.value && a.value && h.value !== a.value); this.renderSelects(); };
-                    h.onchange = check; a.onchange = check;
-                }
-            },
-
+            setupInputs() { const h = document.getElementById('home-select'), a = document.getElementById('away-select'); if(h && a) { h.onchange = () => { document.getElementById('start-btn').disabled = !(h.value && a.value && h.value !== a.value); this.renderSelects(); }; a.onchange = h.onchange; } },
             bindListeners() {
                 if (!this.user) return;
-                const path = (coll) => collection(db, 'artifacts', APP_ID, 'users', this.user.uid, coll);
-                onSnapshot(path('teams'), (snap) => {
-                    this.teams = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    this.renderTeamList(); this.renderSelects(); this.renderTournament(); this.renderScorerLeaderboard();
-                    this.updateUI();
-                });
-                onSnapshot(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), (snap) => {
-                    if (snap.exists()) this.syncMatch(snap.data());
-                });
-                onSnapshot(path('history'), (snap) => {
-                    this.history = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.date - a.date);
-                    this.renderTournament(); this.renderScorerLeaderboard();
-                });
+                const path = (c) => collection(db, 'artifacts', APP_ID, 'users', this.user.uid, c);
+                onSnapshot(path('teams'), (s) => { this.teams = s.docs.map(d => ({ id: d.id, ...d.data() })); this.renderTeamList(); this.renderSelects(); this.renderTournament(); this.renderScorerLeaderboard(); this.updateUI(); });
+                onSnapshot(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), (s) => { if (s.exists()) this.syncMatch(s.data()); });
+                onSnapshot(path('history'), (s) => { this.history = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.date - a.date); this.renderTournament(); this.renderScorerLeaderboard(); });
             },
 
             async startMatch() {
-                const h = document.getElementById('home-select').value, a = document.getElementById('away-select').value;
-                if (!h || !a || !this.user) return;
-                const matchData = { homeId: h, awayId: a, homeScore: 0, awayScore: 0, elapsed: 0, status: 'live', events: [], date: Date.now() };
-                await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), matchData);
+                const hId = document.getElementById('home-select').value, aId = document.getElementById('away-select').value; if (!hId || !aId || !this.user) return;
+                await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { homeId: hId, awayId: aId, homeScore: 0, awayScore: 0, elapsed: 0, status: 'live', events: [], date: Date.now() });
                 this.enterMatchUI();
             },
-
             resumeExistingMatch() { this.enterMatchUI(); },
-
-            enterMatchUI() {
-                document.getElementById('home-view').classList.add('hidden');
-                document.getElementById('match-view').classList.remove('hidden');
-                if (this.currentMatch.status === 'live') this.startTimer();
-                this.updateUI();
-            },
-
-            exitMatch() {
-                this.stopTimer();
-                document.getElementById('match-view').classList.add('hidden');
-                document.getElementById('home-view').classList.remove('hidden');
-            },
-
-            startTimer() {
-                if (this.currentMatch.timerId) clearInterval(this.currentMatch.timerId);
-                this.currentMatch.timerId = setInterval(async () => {
-                    this.currentMatch.elapsed++;
-                    this.renderTimer();
-                    if (this.currentMatch.elapsed % 10 === 0 && this.user) {
-                        await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { elapsed: this.currentMatch.elapsed });
-                    }
-                }, 1000);
-            },
-
+            enterMatchUI() { document.getElementById('home-view').classList.add('hidden'); document.getElementById('match-view').classList.remove('hidden'); if (this.currentMatch.status === 'live') this.startTimer(); this.updateUI(); },
+            exitMatch() { this.stopTimer(); document.getElementById('match-view').classList.add('hidden'); document.getElementById('home-view').classList.remove('hidden'); this.updateUI(); },
+            startTimer() { if (this.currentMatch.timerId) clearInterval(this.currentMatch.timerId); this.currentMatch.timerId = setInterval(async () => { this.currentMatch.elapsed++; this.renderTimer(); if (this.currentMatch.elapsed % 10 === 0 && this.user) await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { elapsed: this.currentMatch.elapsed }); }, 1000); },
             stopTimer() { if (this.currentMatch.timerId) clearInterval(this.currentMatch.timerId); },
+            syncMatch(d) { const o = this.currentMatch.status; this.currentMatch = { ...this.currentMatch, ...d }; this.updateUI(); if (d.status === 'live' && o !== 'live' && !document.getElementById('match-view').classList.contains('hidden')) this.startTimer(); if (d.status !== 'live') this.stopTimer(); },
 
-            syncMatch(data) {
-                const old = this.currentMatch.status;
-                this.currentMatch = { ...this.currentMatch, ...data };
-                this.updateUI();
-                if (data.status === 'live' && old !== 'live' && !document.getElementById('match-view').classList.contains('hidden')) this.startTimer();
-                if (data.status !== 'live') this.stopTimer();
-            },
-
-            renderClubBadge(el, team, small = false) {
-                if (!el) return;
-                const iconName = team.icon || 'shield';
-                const iSize = small ? 'w-6 h-6' : 'w-12 h-12 md:w-16 md:h-16';
-                if (team.logoUrl) {
-                    el.innerHTML = `<img src="${team.logoUrl}" class="rounded-full w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i data-lucide="${iconName}" class="${iSize}" style="display:none;"></i>`;
-                } else {
-                    el.innerHTML = `<i data-lucide="${iconName}" class="${iSize}"></i>`;
-                }
-                el.style.backgroundColor = team.color;
-                lucide.createIcons();
+            renderClubBadge(el, t, sm = false) {
+                if (!el) return; const ic = t.icon || 'shield', sz = sm ? 'w-6 h-6' : 'w-16 h-16 md:w-20 md:h-20';
+                if (t.logoUrl) el.innerHTML = `<img src="${t.logoUrl}" class="rounded-full w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i data-lucide="${ic}" class="${sz}" style="display:none;"></i>`;
+                else el.innerHTML = `<i data-lucide="${ic}" class="${sz}"></i>`;
+                el.style.backgroundColor = t.color; lucide.createIcons();
             },
 
             updateUI() {
-                const def = { name: '...', short: '...', color: '#64748b', icon: 'shield', logoUrl: '' };
+                const def = { name: '...', short: '...', color: '#64748b', icon: 'shield' };
                 const h = this.teams.find(t => t.id === this.currentMatch.homeId) || def, a = this.teams.find(t => t.id === this.currentMatch.awayId) || def;
-                const isPaused = this.currentMatch.status === 'paused', isLive = this.currentMatch.status === 'live', isFT = this.currentMatch.status === 'finished';
-
+                const isP = this.currentMatch.status === 'paused', isL = this.currentMatch.status === 'live', isFT = this.currentMatch.status === 'finished';
                 const b = document.getElementById('live-match-banner');
                 if (b) {
-                    b.classList.toggle('hidden', !(isLive || isPaused));
-                    if (isLive || isPaused) {
-                        this.renderClubBadge(document.getElementById('banner-home-badge'), h, true);
-                        this.renderClubBadge(document.getElementById('banner-away-badge'), a, true);
-                        document.getElementById('banner-home-name').textContent = h.name;
-                        document.getElementById('banner-away-name').textContent = a.name;
-                        document.getElementById('banner-home-score').textContent = this.currentMatch.homeScore;
-                        document.getElementById('banner-away-score').textContent = this.currentMatch.awayScore;
-                    }
+                    b.classList.toggle('hidden', !(isL || isP));
+                    if (isL || isP) { this.renderClubBadge(document.getElementById('banner-home-badge'), h, true); this.renderClubBadge(document.getElementById('banner-away-badge'), a, true); document.getElementById('banner-home-name').textContent = h.name; document.getElementById('banner-away-name').textContent = a.name; document.getElementById('banner-home-score').textContent = this.currentMatch.homeScore; document.getElementById('banner-away-score').textContent = this.currentMatch.awayScore; }
                 }
-
                 if (!document.getElementById('match-view').classList.contains('hidden')) {
-                    document.getElementById('home-name').textContent = h.name;
-                    document.getElementById('away-name').textContent = a.name;
-                    this.renderClubBadge(document.getElementById('home-badge'), h);
-                    this.renderClubBadge(document.getElementById('away-badge'), a);
-                    document.getElementById('home-score').textContent = this.currentMatch.homeScore;
-                    document.getElementById('away-score').textContent = this.currentMatch.awayScore;
-                    document.getElementById('pause-text').textContent = isPaused ? "Resume" : "Pause";
-                    const pI = document.querySelector('#pause-btn i'); if(pI) pI.setAttribute('data-lucide', isPaused ? 'play' : 'pause');
-                    const tC = document.getElementById('timer-container'); if(tC) tC.className = `px-8 py-3 rounded-2xl flex items-center gap-3 text-4xl md:text-5xl font-mono font-bold tracking-tighter border bg-slate-900/50 border-emerald-500/20 ${isPaused ? 'text-amber-400' : 'text-emerald-400 animate-pulse-slow'}`;
+                    document.getElementById('home-name').textContent = h.name; document.getElementById('away-name').textContent = a.name;
+                    this.renderClubBadge(document.getElementById('home-badge'), h); this.renderClubBadge(document.getElementById('away-badge'), a);
+                    document.getElementById('home-score').textContent = this.currentMatch.homeScore; document.getElementById('away-score').textContent = this.currentMatch.awayScore;
+                    document.getElementById('pause-text').textContent = isP ? "Resume" : "Pause";
+                    const tC = document.getElementById('timer-container'); if(tC) tC.className = `px-8 py-3 rounded-2xl flex items-center gap-3 text-4xl md:text-5xl font-mono font-bold tracking-tighter border bg-slate-900/50 border-emerald-500/20 ${isP ? 'text-amber-400' : 'text-emerald-400 animate-pulse-slow'}`;
                     document.getElementById('ft-badge').classList.toggle('hidden', !isFT);
-                    ['home-goal-btn', 'away-goal-btn'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = !isLive; });
+                    ['home-goal-btn', 'away-goal-btn'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = !isL; });
                     this.renderTimeline();
                 }
                 this.renderTimer(); lucide.createIcons();
             },
 
-            renderTimer() {
-                const m = Math.floor(this.currentMatch.elapsed / 60).toString().padStart(2, '0'), s = (this.currentMatch.elapsed % 60).toString().padStart(2, '0'), str = `${m}:${s}`;
-                ['timer-display', 'banner-timer'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = str; });
-            },
+            renderTimer() { const m = Math.floor(this.currentMatch.elapsed / 60).toString().padStart(2, '0'), s = (this.currentMatch.elapsed % 60).toString().padStart(2, '0'); const str = `${m}:${s}`; if(document.getElementById('timer-display')) document.getElementById('timer-display').textContent = str; if(document.getElementById('banner-timer')) document.getElementById('banner-timer').textContent = str; },
 
             handleMemberSelection(side, type) {
                 if (this.currentMatch.status !== 'live') return;
-                this.pendingEvent = { side, type };
-                const t = this.teams.find(t => t.id === (side === 'home' ? this.currentMatch.homeId : this.currentMatch.awayId));
-                document.getElementById('selection-title').textContent = type === 'goal' ? "Who Scored?" : type === 'yellow' ? "Yellow Card for?" : "Red Card for?";
+                this.pendingEvent = { side, type }; const t = this.teams.find(t => t.id === (side === 'home' ? this.currentMatch.homeId : this.currentMatch.awayId));
+                document.getElementById('selection-title').textContent = type==='goal'?"Who Scored?":type==='yellow'?"Yellow Card?":"Red Card?";
                 document.getElementById('selection-team-label').textContent = t ? t.name : "...";
-                const list = document.getElementById('selection-list');
-                const mem = t?.members || [];
-                list.innerHTML = mem.length ? mem.map(m => `<button onclick="window.app.recordMemberEvent('${m.id}')" class="w-full p-4 rounded-2xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all font-bold text-slate-700 flex justify-between items-center group">${m.name}<i data-lucide="plus-circle" class="w-4 h-4 text-slate-300 group-hover:text-emerald-600"></i></button>`).join('') : '<div class="text-center py-6 text-slate-400 text-sm italic">No players registered.</div>';
-                document.getElementById('member-selection-overlay').classList.remove('hidden');
-                lucide.createIcons();
+                const list = document.getElementById('selection-list'), mem = t?.members || [];
+                list.innerHTML = mem.length ? mem.map(m => `<button onclick="window.app.recordMemberEvent('${m.id}')" class="w-full p-4 rounded-2xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all font-bold text-slate-700 flex justify-between items-center group">${m.name}<i data-lucide="plus-circle" class="w-4 h-4 text-slate-300 group-hover:text-emerald-600"></i></button>`).join('') : '<div class="text-center py-6 text-slate-400 italic">No players.</div>';
+                document.getElementById('member-selection-overlay').classList.remove('hidden'); lucide.createIcons();
             },
 
             async recordMemberEvent(mId) {
                 if (!this.user || !this.pendingEvent.side) return;
-                const { side, type } = this.pendingEvent, tId = side === 'home' ? this.currentMatch.homeId : this.currentMatch.awayId, team = this.teams.find(t => t.id === tId), mem = team?.members?.find(m => m.id === mId);
+                const { side, type } = this.pendingEvent, tId = side==='home'?this.currentMatch.homeId:this.currentMatch.awayId, team = this.teams.find(t => t.id === tId), mem = team?.members?.find(m => m.id === mId);
                 const ev = { type, side, time: this.currentMatch.elapsed, timestamp: Date.now(), playerName: mem ? mem.name : null, playerId: mId || null };
                 const up = { events: [...(this.currentMatch.events || []), ev] };
-                if (type === 'goal') { up.homeScore = side === 'home' ? this.currentMatch.homeScore + 1 : this.currentMatch.homeScore; up.awayScore = side === 'away' ? this.currentMatch.awayScore + 1 : this.currentMatch.awayScore; }
+                if (type === 'goal') { up.homeScore = side==='home'?this.currentMatch.homeScore+1:this.currentMatch.homeScore; up.awayScore = side==='away'?this.currentMatch.awayScore+1:this.currentMatch.awayScore; }
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), up);
                 document.getElementById('member-selection-overlay').classList.add('hidden');
                 if (type === 'goal') this.triggerGoalFX(mem ? mem.name : (team ? team.short : 'GOAL'));
                 this.pendingEvent = { side: null, type: null };
             },
 
-            triggerGoalFX(txt) {
-                this.playSound(); this.confetti.start();
-                const el = document.getElementById('goal-overlay'); document.getElementById('goal-message').textContent = `FOR ${txt}`;
-                el.classList.remove('hidden'); setTimeout(() => { el.classList.add('hidden'); this.confetti.stop(); }, 3000);
-            },
-
+            triggerGoalFX(txt) { this.playSound(); this.confetti.start(); const el = document.getElementById('goal-overlay'); document.getElementById('goal-message').textContent = `FOR ${txt}`; el.classList.remove('hidden'); setTimeout(() => { el.classList.add('hidden'); this.confetti.stop(); }, 3000); },
             async togglePause() { await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: this.currentMatch.status === 'live' ? 'paused' : 'live' }); },
-            async restartMatch() { if (confirm("Restart match? Score and time will reset.")) await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { homeScore: 0, awayScore: 0, elapsed: 0, events: [], status: 'live', date: Date.now() }); },
-            async finishMatch() { if (confirm("End match?")) { await addDoc(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history'), { homeId: this.currentMatch.homeId, awayId: this.currentMatch.awayId, homeScore: this.currentMatch.homeScore, awayScore: this.currentMatch.awayScore, events: this.currentMatch.events || [], date: Date.now() }); await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'finished' }); } },
+            restartMatch() { this.showConfirm("Restart?", "Reset score and time?", () => updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { homeScore: 0, awayScore: 0, elapsed: 0, events: [], status: 'live', date: Date.now() })); },
+            finishMatch() { this.showConfirm("End?", "Save final results?", async () => { await addDoc(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history'), { homeId: this.currentMatch.homeId, awayId: this.currentMatch.awayId, homeScore: this.currentMatch.homeScore, awayScore: this.currentMatch.awayScore, events: this.currentMatch.events || [], date: Date.now() }); await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'finished' }); }); },
 
             renderTimeline() {
                 const c = document.getElementById('match-timeline'); if(!c) return;
-                if (!this.currentMatch.events || this.currentMatch.events.length === 0) { c.innerHTML = '<div class="text-center py-12 text-slate-600 italic">Waiting for kickoff...</div>'; return; }
+                if (!this.currentMatch.events || this.currentMatch.events.length === 0) { c.innerHTML = '<div class="text-center py-12 text-slate-600 italic">Kickoff pending...</div>'; return; }
                 c.innerHTML = this.currentMatch.events.slice().reverse().map(ev => {
-                    const t = `${Math.floor(ev.time / 60)}'`, p = ev.playerName || 'Unassigned';
-                    const icon = ev.type === 'goal' ? '<i data-lucide="goal" class="w-4 h-4 text-emerald-500"></i>' : `<span class="w-2.5 h-3.5 rounded-sm ${ev.type === 'yellow' ? 'bg-yellow-500' : 'bg-red-600'}"></span>`;
-                    return `<div class="flex items-center gap-3 animate-fade-in ${ev.side === 'away' ? 'flex-row-reverse text-right' : ''}"><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">${icon}</div><div class="flex-1"><div class="text-xs font-black text-white">${p.toUpperCase()}</div><div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${ev.type.toUpperCase()} · ${t}</div></div></div>`;
+                    const icon = ev.type === 'goal' ? '<i data-lucide="goal" class="w-4 h-4 text-emerald-500"></i>' : `<span class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></span>`;
+                    return `<div class="flex items-center gap-3 animate-fade-in ${ev.side === 'away' ? 'flex-row-reverse text-right' : ''}"><div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">${icon}</div><div class="flex-1"><div class="text-xs font-black text-white">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</div><div class="text-[10px] text-slate-500 font-bold uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</div></div></div>`;
                 }).join('');
                 lucide.createIcons();
             },
 
-            renderTeamList() {
-                const c = document.getElementById('team-list'); if(!c) return;
-                c.innerHTML = this.teams.length ? this.teams.map(t => `<div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-xl team-logo-container" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-6 h-6 text-white"></i>`}</div><div><div class="font-bold text-slate-800">${t.name}</div><div class="text-[10px] font-black tracking-widest text-slate-400 uppercase">${t.members?.length || 0} Members</div></div></div><div class="flex gap-1"><button onclick="window.app.openProfileModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="user" class="w-4 h-4"></i></button><button onclick="window.app.openEditModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="window.app.deleteTeam('${t.id}')" class="p-2 text-slate-400 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') : '<div class="text-center py-8 text-slate-300 italic">No clubs registered yet.</div>';
-                lucide.createIcons();
+            openReport(id) {
+                const m = this.history.find(h => h.id === id); if(!m) return;
+                const hT = this.teams.find(t => t.id === m.homeId) || def, aT = this.teams.find(t => t.id === m.awayId) || def;
+                document.getElementById('report-content').innerHTML = `<div class="text-center py-6 bg-slate-900 rounded-3xl text-white shadow-xl mb-6"><p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-4">${new Date(m.date).toLocaleDateString()}</p><div class="flex items-center justify-around px-4"><div class="flex-1 text-right pr-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${hT.name}</p><p class="text-4xl font-black">${m.homeScore}</p></div><div class="text-xl font-light text-white/20">VS</div><div class="flex-1 text-left pl-4"><p class="text-[10px] font-black uppercase text-white/60 mb-2 truncate">${aT.name}</p><p class="text-4xl font-black">${m.awayScore}</p></div></div></div><div class="space-y-4"><p class="text-[10px] font-black uppercase text-slate-400">Match Timeline</p>${(m.events || []).map(ev => { const align = ev.side==='home'?'text-left':'text-right flex-row-reverse'; return `<div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 ${align}"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">${ev.type==='goal'?'<i data-lucide="goal" class="w-4 h-4"></i>':`<div class="w-2.5 h-3.5 rounded-sm ${ev.type==='yellow'?'bg-yellow-500':'bg-red-600'}"></div>`}</div><div class="flex-1"><p class="text-xs font-black text-slate-800">${(ev.playerName || 'UNASSIGNED').toUpperCase()}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${ev.type} · ${Math.floor(ev.time / 60)}'</p></div></div>`; }).join('')}</div><button onclick="window.app.deleteHistoryRecord('${id}')" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-2xl text-xs mt-6">Delete Permanent Record</button>`;
+                document.getElementById('report-modal').classList.remove('hidden'); lucide.createIcons();
             },
+            async deleteHistoryRecord(id) { this.showConfirm("Delete?", "Remove from history?", async () => { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history', id)); document.getElementById('report-modal').classList.add('hidden'); }); },
 
-            renderSelects() {
-                const hS = document.getElementById('home-select'), aS = document.getElementById('away-select'); if (!hS || !aS) return;
-                const hv = hS.value, av = aS.value;
-                const opts = (val, dis) => `<option value="">Select Club</option>` + this.teams.map(t => `<option value="${t.id}" ${t.id === val ? 'selected' : ''} ${t.id === dis ? 'disabled' : ''}>${t.name}</option>`).join('');
-                hS.innerHTML = opts(hS.value, aS.value); aS.innerHTML = opts(aS.value, hS.value);
-            },
-
-            async addTeam(e) {
-                e.preventDefault();
-                const name = document.getElementById('team-name-input').value;
-                const short = document.getElementById('team-short-input').value.toUpperCase();
-                const color = document.getElementById('team-color-input').value;
-                const icon = document.getElementById('team-icon-input').value;
-                const logo = document.getElementById('team-logo-url-input').value;
-                if(!name || !short || !this.user) return;
-                await addDoc(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams'), { name, short, color, icon, logoUrl: logo, members: [], created: Date.now() });
-                e.target.reset();
-            },
-
-            async deleteTeam(id) { if (this.user && confirm("Remove club?")) await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id)); },
-
-            openProfileModal(id) {
-                const t = this.teams.find(t => t.id === id); if (!t) return;
-                const stats = this.calculateStats(id);
-                document.getElementById('profile-content').innerHTML = `
-                    <div class="flex items-center gap-6"><div class="w-24 h-24 rounded-3xl team-logo-container shadow-xl text-white" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-12 h-12"></i>`}</div><div class="flex-1"><h2 class="text-3xl font-black text-slate-800 tracking-tight">${t.name}</h2><div class="flex items-center gap-2 mt-1"><span class="text-xs font-black tracking-[0.2em] text-white bg-slate-900 px-3 py-1 rounded-full">${t.short}</span><span class="text-xs text-slate-400 font-bold">${t.members?.length || 0} Members</span></div></div></div>
-                    <div class="grid grid-cols-3 md:grid-cols-6 gap-3">${['Played', 'Wins', 'Draws', 'Losses', 'GD', 'Points'].map(l => `<div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center"><div class="text-[10px] font-black tracking-widest text-slate-400 mb-1 uppercase">${l}</div><div class="font-bold text-lg">${l==='Points'? stats.pts : stats[l.toLowerCase() === 'played' ? 'mp' : l.toLowerCase() === 'gd' ? 'gd_str' : l.toLowerCase().charAt(0)]}</div></div>`).join('')}</div>`;
-                document.getElementById('profile-modal').classList.remove('hidden'); lucide.createIcons();
-            },
-
-            calculateStats(id) {
-                const s = { mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-                this.history.forEach(m => {
-                    const isH = m.homeId === id; if(!isH && m.awayId !== id) return;
-                    s.mp++; const sc = isH ? m.homeScore : m.awayScore, co = isH ? m.awayScore : m.homeScore;
-                    s.gf += sc; s.ga += co; if (sc > co) { s.w++; s.pts += 3; } else if (sc < co) s.l++; else { s.d++; s.pts += 1; }
-                });
-                s.gd = s.gf - s.ga; s.gd_str = (s.gd > 0 ? '+' : '') + s.gd; return s;
-            },
-
-            renderTournament() {
-                const s = {}; this.teams.forEach(t => s[t.id] = { name: t.name, mp: 0, w: 0, d: 0, l: 0, gd: 0, pts: 0 });
-                this.history.forEach(m => {
-                    const h = s[m.homeId], a = s[m.awayId]; if (!h || !a) return;
-                    h.mp++; a.mp++; h.gd += (m.homeScore - m.awayScore); a.gd += (m.awayScore - m.homeScore);
-                    if (m.homeScore > m.awayScore) { h.w++; h.pts += 3; a.l++; } else if (m.homeScore < m.awayScore) { a.w++; a.pts += 3; h.l++; } else { h.d++; a.d++; h.pts += 1; a.pts += 1; }
-                });
-                const sort = Object.values(s).filter(x => x.mp > 0).sort((a,b) => b.pts - a.pts || b.gd - a.gd);
-                document.getElementById('standings-body').innerHTML = sort.length ? sort.map((x, i) => `<tr class="bg-white border-b hover:bg-slate-50 transition-colors"><td class="px-4 py-4 font-bold flex items-center gap-3"><span class="text-[10px] text-slate-300 w-4">${i+1}</span> ${x.name}</td><td class="px-4 py-4 text-center">${x.mp}</td><td class="px-4 py-4 text-center font-bold text-emerald-600">${x.w}</td><td class="px-4 py-4 text-center">${x.d}</td><td class="px-4 py-4 text-center text-red-500">${x.l}</td><td class="px-4 py-4 text-center font-mono text-xs">${(x.gd>0?'+':'')+x.gd}</td><td class="px-4 py-4 text-center font-black text-slate-900">${x.pts}</td></tr>`).join('') : '<tr><td colspan="7" class="px-4 py-12 text-center text-slate-300 italic">No rankings available yet.</td></tr>';
-                const hist = document.getElementById('history-list'); if (hist) hist.innerHTML = this.history.length ? this.history.slice(0, 10).map(m => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="font-black text-xs w-10 text-right">${(this.teams.find(t => t.id === m.homeId) || {short:'???'}).short}</div><div class="px-4 py-1.5 bg-white rounded-lg font-mono font-bold border border-slate-200 text-xs">${m.homeScore} - ${m.awayScore}</div><div class="font-black text-xs w-10 text-left">${(this.teams.find(t => t.id === m.awayId) || {short:'???'}).short}</div></div>`).join('') : '<div class="text-center py-4 text-slate-300 italic">No fixtures completed.</div>';
-            },
-
-            renderScorerLeaderboard() {
-                const c = document.getElementById('scorers-leaderboard'); if (!c) return;
-                const sc = {}; this.history.forEach(m => (m.events || []).forEach(ev => { if (ev.type === 'goal' && ev.playerId) { if (!sc[ev.playerId]) sc[ev.playerId] = { name: ev.playerName, goals: 0 }; sc[ev.playerId].goals++; } }));
-                const sorted = Object.values(sc).sort((a,b) => b.goals - a.goals).slice(0, 10);
-                c.innerHTML = sorted.length ? sorted.map((s, i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center gap-3"><span class="text-[10px] font-black text-slate-300 w-4">${i+1}</span><span class="font-bold text-slate-700 text-sm">${s.name}</span></div><div class="flex items-center gap-2"><span class="px-3 py-1 bg-white rounded-lg font-mono font-bold text-emerald-600 text-xs">${s.goals} G</span></div></div>`).join('') : '<div class="text-center py-4 text-slate-300 italic">Waiting for goals...</div>';
-            },
-
-            openEditModal(id) {
-                const t = this.teams.find(x => x.id === id); if(!t) return;
-                ['edit-team-id','edit-team-name','edit-team-short','edit-team-color','edit-team-icon','edit-team-logo-url'].forEach(fid => {
-                    const el = document.getElementById(fid);
-                    if(el) el.value = t[fid.split('-').pop()] || (fid === 'edit-team-icon' ? 'shield' : '');
-                });
-                this.renderSquadList(t); document.getElementById('edit-modal').classList.remove('hidden'); lucide.createIcons();
-            },
-
-            renderSquadList(t) {
-                const l = document.getElementById('edit-squad-list'), m = t.members || [];
-                l.innerHTML = m.length ? m.map(x => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group"><span class="text-sm font-bold text-slate-700">${x.name}</span><button onclick="window.app.removeMember('${x.id}')" class="p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="user-minus" class="w-4 h-4"></i></button></div>`).join('') : '<div class="col-span-full text-center py-4 text-slate-400 text-xs italic">No members.</div>';
-                lucide.createIcons();
-            },
-
-            async addMember() {
-                const id = document.getElementById('edit-team-id').value, name = document.getElementById('new-member-name').value.trim();
-                if(!id || !name) return; const t = this.teams.find(x => x.id === id);
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), { members: [...(t.members || []), { id: crypto.randomUUID(), name }] });
-                document.getElementById('new-member-name').value = '';
-            },
-
-            async removeMember(mId) {
-                const id = document.getElementById('edit-team-id').value; if(!id || !confirm("Remove member?")) return;
-                const t = this.teams.find(x => x.id === id);
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), { members: t.members.filter(x => x.id !== mId) });
-            },
-
+            renderTeamList() { const c = document.getElementById('team-list'); if(!c) return; c.innerHTML = this.teams.length ? this.teams.map(t => `<div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-xl team-logo-container" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-6 h-6 text-white"></i>`}</div><div><div class="font-bold text-slate-800">${t.name}</div><div class="text-[10px] font-black tracking-widest text-slate-400 uppercase">${t.members?.length || 0} Members</div></div></div><div class="flex gap-1"><button onclick="window.app.openProfileModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="user" class="w-4 h-4"></i></button><button onclick="window.app.openEditModal('${t.id}')" class="p-2 text-slate-400 hover:text-emerald-600 transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="window.app.deleteTeam('${t.id}')" class="p-2 text-slate-400 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join('') : '<div class="text-center py-8 text-slate-300 italic">No clubs registered.</div>'; lucide.createIcons(); },
+            renderSelects() { const hS = document.getElementById('home-select'), aS = document.getElementById('away-select'); if (!hS || !aS) return; const opts = (val, dis) => `<option value="">Select Club</option>` + this.teams.map(t => `<option value="${t.id}" ${t.id === val ? 'selected' : ''} ${t.id === dis ? 'disabled' : ''}>${t.name}</option>`).join(''); hS.innerHTML = opts(hS.value, aS.value); aS.innerHTML = opts(aS.value, hS.value); },
+            async addTeam(e) { e.preventDefault(); const n = document.getElementById('team-name-input').value, s = document.getElementById('team-short-input').value.toUpperCase(), c = document.getElementById('team-color-input').value, i = document.getElementById('team-icon-input').value, l = document.getElementById('team-logo-url-input').value; await addDoc(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams'), { name: n, short: s, color: c, icon: i, logoUrl: l, members: [], created: Date.now() }); e.target.reset(); },
+            deleteTeam(id) { this.showConfirm("Delete Club?", "Permanently remove this team?", async () => await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id))); },
+            openProfileModal(id) { const t = this.teams.find(t => t.id === id); if (!t) return; const s = this.calculateStats(id); document.getElementById('profile-content').innerHTML = `<div class="flex items-center gap-6"><div class="w-24 h-24 rounded-3xl team-logo-container shadow-xl text-white" style="background-color: ${t.color}">${t.logoUrl ? `<img src="${t.logoUrl}" class="w-full h-full object-cover">` : `<i data-lucide="${t.icon || 'shield'}" class="w-12 h-12"></i>`}</div><div class="flex-1"><h2 class="text-3xl font-black tracking-tight">${t.name}</h2><div class="flex items-center gap-2 mt-1"><span class="text-xs font-black tracking-[0.2em] text-white bg-slate-900 px-3 py-1 rounded-full">${t.short}</span><span class="text-xs text-slate-400 font-bold">${t.members?.length || 0} Members</span></div></div></div><div class="grid grid-cols-3 md:grid-cols-6 gap-3">${['Played', 'Wins', 'Draws', 'Losses', 'GD', 'Points'].map(l => `<div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center"><div class="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">${l}</div><div class="font-bold text-lg">${l==='Points'? s.pts : s[l.toLowerCase()==='played'?'mp':l.toLowerCase()==='gd'?'gd_str':l.toLowerCase().charAt(0)]}</div></div>`).join('')}</div>`; document.getElementById('profile-modal').classList.remove('hidden'); lucide.createIcons(); },
+            calculateStats(id) { const s = { mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }; this.history.forEach(m => { const isH = m.homeId === id; if(!isH && m.awayId !== id) return; s.mp++; const sc = isH ? m.homeScore : m.awayScore, co = isH ? m.awayScore : m.homeScore; s.gf += sc; s.ga += co; if (sc > co) { s.w++; s.pts += 3; } else if (sc < co) s.l++; else { s.d++; s.pts += 1; } }); s.gd = s.gf - s.ga; s.gd_str = (s.gd > 0 ? '+' : '') + s.gd; return s; },
+            renderTournament() { const s = {}; this.teams.forEach(t => s[t.id] = { name: t.name, mp: 0, w: 0, d: 0, l: 0, gd: 0, pts: 0 }); this.history.forEach(m => { const h = s[m.homeId], a = s[m.awayId]; if (h && a) { h.mp++; a.mp++; h.gd += (m.homeScore - m.awayScore); a.gd += (m.awayScore - m.homeScore); if (m.homeScore > m.awayScore) { h.w++; h.pts += 3; a.l++; } else if (m.homeScore < m.awayScore) { a.w++; a.pts += 3; h.l++; } else { h.d++; a.d++; h.pts += 1; a.pts += 1; } } }); const sort = Object.values(s).filter(x => x.mp > 0).sort((a,b) => b.pts - a.pts || b.gd - a.gd); document.getElementById('standings-body').innerHTML = sort.length ? sort.map((x, i) => `<tr class="bg-white border-b transition-colors"><td class="px-4 py-4 font-bold flex items-center gap-3"><span class="text-[10px] text-slate-300 w-4">${i+1}</span> ${x.name}</td><td class="px-4 py-4 text-center">${x.mp}</td><td class="px-4 py-4 text-center font-bold text-emerald-600">${x.w}</td><td class="px-4 py-4 text-center">${x.d}</td><td class="px-4 py-4 text-center text-red-500">${x.l}</td><td class="px-4 py-4 text-center font-mono text-xs">${(x.gd>0?'+':'')+x.gd}</td><td class="px-4 py-4 text-center font-black text-slate-900">${x.pts}</td></tr>`).join('') : '<tr><td colspan="7" class="px-4 py-12 text-center text-slate-300 italic">No rankings.</td></tr>'; const hist = document.getElementById('history-list'); if (hist) hist.innerHTML = this.history.length ? this.history.map(m => `<button onclick="window.app.openReport('${m.id}')" class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-emerald-500 transition-all text-sm group"><div class="flex items-center gap-3"><div class="font-black text-slate-400 w-10 text-right group-hover:text-emerald-600">${(this.teams.find(t => t.id===m.homeId)||{short:'???'}).short}</div><div class="px-3 py-1.5 bg-white rounded-xl font-mono font-bold border border-slate-200 text-xs shadow-sm">${m.homeScore} - ${m.awayScore}</div><div class="font-black text-slate-400 w-10 text-left group-hover:text-emerald-600">${(this.teams.find(t => t.id===m.awayId)||{short:'???'}).short}</div></div><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></button>`).join('') : '<div class="text-center py-4 text-slate-300 italic">No fixtures.</div>'; },
+            renderScorerLeaderboard() { const c = document.getElementById('scorers-leaderboard'); if (!c) return; const sc = {}; this.history.forEach(m => (m.events || []).forEach(ev => { if (ev.type === 'goal' && ev.playerId) { if (!sc[ev.playerId]) sc[ev.playerId] = { name: ev.playerName, goals: 0 }; sc[ev.playerId].goals++; } })); const sorted = Object.values(sc).sort((a,b) => b.goals - a.goals).slice(0, 10); c.innerHTML = sorted.length ? sorted.map((s, i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm"><div class="flex items-center gap-3"><span class="text-[10px] font-black text-slate-300 w-4">${i+1}</span><span class="font-bold text-slate-700">${s.name}</span></div><div class="flex items-center gap-2"><span class="px-3 py-1 bg-white rounded-lg font-mono font-bold text-emerald-600 text-xs">${s.goals} G</span></div></div>`).join('') : '<div class="text-center py-4 text-slate-300 italic">Waiting for goals.</div>'; },
+            openEditModal(id) { const t = this.teams.find(x => x.id === id); if(!t) return; document.getElementById('edit-team-id').value = id; ['edit-team-name','edit-team-short','edit-team-color','edit-team-icon','edit-team-logo-url'].forEach(fid => { const el = document.getElementById(fid); if(el) el.value = t[fid.split('-').pop()] || (fid === 'edit-team-icon' ? 'shield' : ''); }); this.renderSquadList(t); document.getElementById('edit-modal').classList.remove('hidden'); lucide.createIcons(); },
+            renderSquadList(t) { const l = document.getElementById('edit-squad-list'), m = t.members || []; l.innerHTML = m.length ? m.map(x => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group"><span class="text-sm font-bold text-slate-700">${x.name}</span><button onclick="window.app.removeMember('${x.id}')" class="p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><i data-lucide="user-minus" class="w-4 h-4"></i></button></div>`).join('') : '<div class="col-span-full text-center py-4 text-slate-400 text-xs italic">No members.</div>'; lucide.createIcons(); },
+            async addMember() { const id = document.getElementById('edit-team-id').value, name = document.getElementById('new-member-name').value.trim(); if(!id || !name) return; const t = this.teams.find(x => x.id === id); await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), { members: [...(t.members || []), { id: crypto.randomUUID(), name }] }); document.getElementById('new-member-name').value = ''; },
+            removeMember(mId) { const id = document.getElementById('edit-team-id').value; if(!id) return; this.showConfirm("Remove?", "Delete player from squad?", async () => { const t = this.teams.find(x => x.id === id); await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), { members: t.members.filter(x => x.id !== mId) }); }); },
             closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); },
-
-            async handleUpdateTeam(e) {
-                e.preventDefault(); const id = document.getElementById('edit-team-id').value;
-                const up = { name: document.getElementById('edit-team-name').value, short: document.getElementById('edit-team-short').value.toUpperCase(), color: document.getElementById('edit-team-color').value, icon: document.getElementById('edit-team-icon').value, logoUrl: document.getElementById('edit-team-logo-url').value };
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), up);
-            },
-
-            async clearMatchHistory() { if (this.user && confirm("Reset tournament data?")) { const s = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history')); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'scheduled' }); } },
-            async wipeAllData() { if (this.user && confirm("Wipe all app data?")) { const b = writeBatch(db); const tS = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams')), hS = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history')); tS.docs.forEach(d => b.delete(d.ref)); hS.docs.forEach(d => b.delete(d.ref)); await b.commit(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'scheduled' }); location.reload(); } },
-
-            toggleSound() { this.settings.sound = !this.settings.sound; document.querySelector('#sound-btn i').setAttribute('data-lucide', this.settings.sound ? 'volume-2' : 'volume-x'); lucide.createIcons(); },
-            playSound() { if (!this.settings.sound) return; const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(), gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(440, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8); osc.start(); osc.stop(ctx.currentTime + 0.8); }
+            async handleUpdateTeam(e) { e.preventDefault(); const id = document.getElementById('edit-team-id').value; const up = { name: document.getElementById('edit-team-name').value, short: document.getElementById('edit-team-short').value.toUpperCase(), color: document.getElementById('edit-team-color').value, icon: document.getElementById('edit-team-icon').value, logoUrl: document.getElementById('edit-team-logo-url').value }; await updateDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams', id), up); },
+            clearMatchHistory() { if (this.user) this.showConfirm("Reset?", "Clear records?", async () => { const s = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history')), b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'scheduled' }); }); },
+            wipeAllData() { if (this.user) this.showConfirm("Wipe All?", "Delete everything?", async () => { const b = writeBatch(db), tS = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'teams')), hS = await getDocs(collection(db, 'artifacts', APP_ID, 'users', this.user.uid, 'history')); tS.docs.forEach(d => b.delete(d.ref)); hS.docs.forEach(d => b.delete(d.ref)); await b.commit(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', this.user.uid, 'match', 'current'), { status: 'scheduled' }); location.reload(); }); },
+            toggleSound() { this.settings.sound = !this.settings.sound; const i = document.querySelector('#sound-btn i'); if (i) i.setAttribute('data-lucide', this.settings.sound ? 'volume-2' : 'volume-x'); lucide.createIcons(); },
+            playSound() { if (!this.settings.sound) return; const c = new AudioContext(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.setValueAtTime(440, c.currentTime); o.frequency.exponentialRampToValueAtTime(880, c.currentTime + 0.15); g.gain.setValueAtTime(0.2, c.currentTime); g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.8); o.start(); o.stop(c.currentTime + 0.8); }
         };
 
         class ConfettiSystem { constructor() { this.canvas = document.getElementById('confetti-canvas'); this.ctx = this.canvas.getContext('2d'); this.particles = []; this.colors = ['#FFD700', '#FF0000', '#FFFFFF', '#10b981', '#3b82f6']; this.active = false; this.resize(); window.addEventListener('resize', () => this.resize()); } resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; } start() { this.active = true; this.particles = []; for (let i = 0; i < 150; i++) this.particles.push({ x: this.canvas.width / 2, y: this.canvas.height / 2, w: Math.random() * 8 + 4, h: Math.random() * 8 + 4, dx: (Math.random() - 0.5) * 25, dy: (Math.random() - 0.5) * 25, color: this.colors[Math.floor(Math.random() * this.colors.length)], gravity: 0.25, drag: 0.97, rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 15 }); if (!this.animationId) this.animate(); } stop() { this.active = false; } animate() { if (!this.active && this.particles.length === 0) { cancelAnimationFrame(this.animationId); this.animationId = null; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); return; } this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); this.particles.forEach((p, index) => { p.x += p.dx; p.y += p.dy; p.dy += p.gravity; p.dx *= p.drag; p.dy *= p.drag; p.rotation += p.rotationSpeed; this.ctx.save(); this.ctx.translate(p.x, p.y); this.ctx.rotate((p.rotation * Math.PI) / 180); this.ctx.fillStyle = p.color; this.ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); this.ctx.restore(); if (p.y > this.canvas.height) this.particles.splice(index, 1); }); this.animationId = requestAnimationFrame(() => this.animate()); } }
